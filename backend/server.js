@@ -133,7 +133,7 @@ app.post("/sendToServer", (req, res) => {
 // })
 
 app.get("*", (req, res) => {
-    res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/client/build', 'index.html'))
+    res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build', 'index.html'))
 })
 
 app.listen(PORT, ()=> {
