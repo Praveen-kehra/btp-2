@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { v4 as uuid } from 'uuid';
+import { useEffect, useRef } from 'react'
+import { v4 as uuid } from 'uuid'
+import io from 'socket.io-client'
 
 const id = uuid().slice(0, 16);
 
@@ -53,6 +54,45 @@ const StoreData = () => {
 
         //     socketRef.current.close()
         // })
+
+        socketRef.current = io.connect("https://my-app-a0p5.onrender.com")
+
+        socketRef.current.on('connect', () => {
+            console.log('Connected to the Server')
+
+            setTimeout(() => {
+                socketRef.current.emit('id', JSON.stringify({
+                    content : id
+                }))
+            }, 1000)
+        })
+
+        socketRef.current.on('storeData', async (data) => {
+            // const shard = JSON.parse(data)
+
+            // console.log('Message from server received')
+
+            // //this serialization doesn't work - need to figure out a way besides json parse and stringify
+            // var folderHandle = JSON.parse(window.localStorage.getItem('my-app'))
+
+            // //now we write the file to the local file system
+            // const fileHandle = await folderHandle.getFile(shard.id, { create : true })
+            // const writable = await fileHandle.createWritable()
+            // await writable.write(JSON.stringify(shard))
+            // await writable.close()
+        })
+
+        socketRef.current.on('disconnect', () => {
+            console.log('Disconnectd from Socket Server')
+        })
+
+        window.addEventListener('beforeunload', (event) => {
+            socketRef.current.emit('beforeConnectionClose', JSON.stringify({
+                content: id
+            }))
+
+            socketRef.current.disconnect()
+        })
     }, []);
 
     return (

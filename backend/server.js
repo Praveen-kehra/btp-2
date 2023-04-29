@@ -1,11 +1,14 @@
 import { queue, addNode, showQueue, removeNode } from './queue.js'
 import * as path from 'path'
-import { WebSocketServer } from 'ws'
 import { v4 as uuid } from 'uuid'
 import { fileURLToPath } from 'url'
+import http from 'http'
+import { Server } from 'socket.io'
 
 import express from 'express'
 const app = express()
+const server = http.createServer(app)
+const io = new Server(server)
 
 // require('dotenv').config()
 
@@ -65,7 +68,7 @@ function distributeData(userId, dataStore) {
 
             const nodeSocket = clients.get(node)
 
-            nodeSocket.send(JSON.stringify(shard))
+            nodeSocket.emit('storeData', JSON.stringify(shard))
 
             if(shardLocate.has(shardId) == false) {
                 shardLocate.set(shardId, [])
@@ -130,7 +133,7 @@ app.post("/sendToServer", (req, res) => {
 // })
 
 app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend/client/build', 'index.html'))
+    res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/client/build', 'index.html'))
 })
 
 app.listen(PORT, ()=> {
@@ -167,3 +170,25 @@ app.listen(PORT, ()=> {
 //         console.log('Disconnected')
 //     })
 // })
+
+io.on('connection', (socket) => {
+    console.log('A user connected')
+
+    socket.on('id', (data) => {
+        const obj = JSON.parse(data)
+
+        clients.set(obj.content, socket)
+        addNode(queue, obj.content)
+    })
+
+    socket.on('beforeConnectionClose', (data) => {
+        const obj = JSON.parse(data)
+
+        clients.delete(obj.content)
+        removeNode(queue, obj.content)
+    })
+
+    socket.on('disconnect', () => {
+        console.log('Client has Disconnected')
+    })
+})
