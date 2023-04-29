@@ -137,33 +137,33 @@ app.listen(PORT, ()=> {
     console.log(`Server is running on ${PORT}`)
 })
 
-const ws = new WebSocketServer({ port : 886 })
+// const ws = new WebSocketServer({ port : 886 })
 
-ws.on('connection', (socket) => {
-    console.log('Client Connected')
+// ws.on('connection', (socket) => {
+//     console.log('Client Connected')
 
-    setTimeout(() => {
-        console.log('sent')
-        socket.send(JSON.stringify({
-            id : '83838',
-            position: 73,
-            store: 'lksjdfsdklf'
-        }))
-    }, 10000)
+//     setTimeout(() => {
+//         console.log('sent')
+//         socket.send(JSON.stringify({
+//             id : '83838',
+//             position: 73,
+//             store: 'lksjdfsdklf'
+//         }))
+//     }, 10000)
 
-    socket.on('message', (message) => {
-        const obj = JSON.parse(message)
+//     socket.on('message', (message) => {
+//         const obj = JSON.parse(message)
 
-        if(obj.type === 'id') {
-            clients.set(obj.content, socket)
-            addNode(queue, obj.content)
-        } else if(obj.type === 'close') {
-            clients.delete(obj.content)
-            removeNode(queue, obj.content)
-        }
-    })
+//         if(obj.type === 'id') {
+//             clients.set(obj.content, socket)
+//             addNode(queue, obj.content)
+//         } else if(obj.type === 'close') {
+//             clients.delete(obj.content)
+//             removeNode(queue, obj.content)
+//         }
+//     })
 
-    socket.on('close', () => {
-        console.log('Disconnected')
-    })
-})
+//     socket.on('close', () => {
+//         console.log('Disconnected')
+//     })
+// })
