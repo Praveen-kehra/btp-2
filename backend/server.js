@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8081
 const numChunks = 2
 const redundantFactor = 2
 
-app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/client/build')))
+app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build')))
 
 var clients = new Map()
 

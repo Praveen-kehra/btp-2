@@ -1,5 +1,21 @@
 {
-  "dependencies": {
-    "browserfs": "^1.4.3"
-  }
+  "name": "btp-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd backend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Praveen-kehra/btp-2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Praveen-kehra/btp-2/issues"
+  },
+  "homepage": "https://github.com/Praveen-kehra/btp-2#readme"
 }
