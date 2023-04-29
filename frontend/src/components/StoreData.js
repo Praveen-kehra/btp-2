@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
-// import { FileSystemDirectoryHandle } from 'browserfs';
 
 const id = uuid().slice(0, 16);
 
