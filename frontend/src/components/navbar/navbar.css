@@ -1,0 +1,16 @@
+.navbar-container{
+    padding: 10px 0;
+    background: rgb(152, 152, 199);
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: rgb(24, 17, 124);
+}
+.connect-button{
+    margin: 10px;
+    cursor:pointer;   
+}
+.connect-span{
+    margin-left: 10px;
+    background: rgb(58, 161, 58);
+    padding: 2px 5px;
+}
