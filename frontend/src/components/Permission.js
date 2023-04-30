@@ -2,9 +2,12 @@ const Permission = () => {
     const clickHandler = async () => {
         const folderHandle = await window.showDirectoryPicker({ writable : true })
         console.log(folderHandle)
-        const serializedHandle = JSON.stringify(folderHandle)
-        console.log(serializedHandle)
-        window.localStorage.setItem('my-app', serializedHandle)
+        const serialized = JSON.stringify({
+            name : folderHandle.name,
+            kind: folderHandle.kind,
+            isDirectory: true
+        })
+        window.localStorage.setItem('my-app', serialized)
     }
     return (
         <div className="permission">

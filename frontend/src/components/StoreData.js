@@ -55,8 +55,8 @@ const StoreData = () => {
         //     socketRef.current.close()
         // })
 
-        socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
-        // socketRef.current = io.connect(`http://127.0.0.1:8081`)
+        // socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
+        socketRef.current = io.connect(`http://127.0.0.1:8081`)
         console.log("H")
         console.log(socketRef.current)
 
@@ -71,18 +71,25 @@ const StoreData = () => {
         })
 
         socketRef.current.on('storeData', async (data) => {
-            // const shard = JSON.parse(data)
+            const shard = JSON.parse(data)
 
-            // console.log('Message from server received')
+            console.log('Message from server received')
+            console.log(shard)
 
-            // //this serialization doesn't work - need to figure out a way besides json parse and stringify
-            // var folderHandle = JSON.parse(window.localStorage.getItem('my-app'))
+            let deserialized = JSON.parse(window.localStorage.getItem('my-app'))
+
+            const folderHandle = await window.showDirectoryPicker({
+                onlyDirectory : 'true',
+                name : deserialized.name,
+                kind: deserialized.kind,
+                isDirectory : deserialized.isDirectory
+            })
 
             // //now we write the file to the local file system
-            // const fileHandle = await folderHandle.getFile(shard.id, { create : true })
-            // const writable = await fileHandle.createWritable()
-            // await writable.write(JSON.stringify(shard))
-            // await writable.close()
+            const fileHandle = await folderHandle.getFile(shard.id, { create : true })
+            const writable = await fileHandle.createWritable()
+            await writable.write(JSON.stringify(shard))
+            await writable.close()
         })
 
         socketRef.current.on('disconnect', () => {

@@ -176,6 +176,15 @@ app.get("*", (req, res) => {
 io.on('connection', (socket) => {
     console.log('A user connected')
 
+    setTimeout(() => {
+        console.log('sent')
+        socket.emit('storeData', JSON.stringify({
+            id : '83838',
+            position: 73,
+            store: 'lksjdfsdklf'
+        }))
+    }, 10000)
+
     socket.on('id', (data) => {
         const obj = JSON.parse(data)
 
