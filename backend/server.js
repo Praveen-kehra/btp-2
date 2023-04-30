@@ -7,12 +7,14 @@ import { Server } from 'socket.io'
 
 import express from 'express'
 const app = express()
-const server = http.createServer(app)
+const server = http.Server(app)
 const io = new Server(server)
 
-// require('dotenv').config()
+import d from 'dotenv'
 
-const PORT = process.env.PORT || 8081
+d.config()
+
+const PORT = process.env.PORT || 3000
 const numChunks = 2
 const redundantFactor = 2
 
@@ -136,9 +138,9 @@ app.get("*", (req, res) => {
     res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build', 'index.html'))
 })
 
-app.listen(PORT, ()=> {
-    console.log(`Server is running on ${PORT}`)
-})
+// app.listen(PORT, ()=> {
+//     console.log(`Server is running on ${PORT}`)
+// })
 
 // const ws = new WebSocketServer({ port : 886 })
 
@@ -191,4 +193,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Client has Disconnected')
     })
+})
+
+server.listen(PORT, () => {
+    console.log('listening on PORT' + PORT)
 })
