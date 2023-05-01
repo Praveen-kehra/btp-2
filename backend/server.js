@@ -130,6 +130,8 @@ app.post("/sendToServer", (req, res) => {
         counter++
     }
 
+    res.json({message : 'Received'})
+
     // distributeData(id, dataStore)
 
 })
