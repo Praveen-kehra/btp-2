@@ -4,14 +4,14 @@ import StoreData from './components/StoreData';
 import Permission from './components/Permission';
 
 import './App.css';
-import UploadData from "./components/UploadData/UploadData";
+// import UploadData from "./components/UploadData/UploadData";
 
 function App() {
   return (
     <div className="App">
       <Navbar />
       <Share />
-      <UploadData />
+      {/* <UploadData /> */}
       <StoreData />
       {/* <Permission /> */}
     </div>

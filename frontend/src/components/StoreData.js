@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { v4 as uuid } from 'uuid'
 import io from 'socket.io-client'
+import UploadData from './UploadData/UploadData';
 
 const id = uuid().slice(0, 16);
 
-const StoreData = () => {
+const StoreData = (props) => {
     const socketRef = useRef(null)
     const folderHandle = useRef(null)
 
@@ -101,6 +102,7 @@ const StoreData = () => {
 
     return (
         <div className="StoreData">
+            <UploadData id={props.id}/>
             <button onClick = {onClickHandler}>Grant Permissions</button>
         </div>
     )
