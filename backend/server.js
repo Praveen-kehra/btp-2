@@ -198,7 +198,7 @@ io.on('connection', (socket) => {
         clients.set(obj.content, socket)
         addNode(queue, obj.content)
 
-        console.log('id received')
+        console.log('id received ' + obj.content)
     })
 
     socket.on('beforeConnectionClose', (data) => {
