@@ -5,7 +5,12 @@ import io from 'socket.io-client'
 const id = uuid().slice(0, 16);
 
 const StoreData = () => {
-    const socketRef = useRef(null);
+    const socketRef = useRef(null)
+    const folderHandle = useRef(null)
+
+    const onClickHandler = () => {
+
+    }
 
     useEffect(() => {
         // socketRef.current = new WebSocket("ws://127.0.0.1:886")
@@ -54,10 +59,11 @@ const StoreData = () => {
 
         //     socketRef.current.close()
         // })
-
+        
+        console.log("first")
         socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
         // socketRef.current = io.connect(`http://127.0.0.1:8081`)
-        console.log("H")
+        console.log("second")
         console.log(socketRef.current)
 
         socketRef.current.on('connect', () => {
@@ -76,20 +82,7 @@ const StoreData = () => {
             console.log('Message from server received')
             console.log(shard)
 
-            let deserialized = JSON.parse(window.localStorage.getItem('my-app'))
-
-            const folderHandle = await window.showDirectoryPicker({
-                onlyDirectory : 'true',
-                name : deserialized.name,
-                kind: deserialized.kind,
-                isDirectory : deserialized.isDirectory
-            })
-
-            // //now we write the file to the local file system
-            const fileHandle = await folderHandle.getFile(shard.id, { create : true })
-            const writable = await fileHandle.createWritable()
-            await writable.write(JSON.stringify(shard))
-            await writable.close()
+            
         })
 
         socketRef.current.on('disconnect', () => {
@@ -107,7 +100,7 @@ const StoreData = () => {
 
     return (
         <div className="StoreData">
-
+            <button onClick = {onClickHandler}>Grant Permissions</button>
         </div>
     )
 }
