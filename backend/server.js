@@ -93,8 +93,9 @@ function distributeData(userId, dataStore) {
 }
 
 app.post("/sendToServer", (req, res) => {
+    console.log(req)
     //data is in string format req.body.textData
-    dataStore = []
+    let dataStore = []
     let data = req.body.textData
     const id = req.body.id
 

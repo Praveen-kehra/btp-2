@@ -5,7 +5,7 @@ import UploadData from './UploadData/UploadData';
 
 const id = uuid().slice(0, 16);
 
-const StoreData = (props) => {
+const StoreData = () => {
     const socketRef = useRef(null)
     const folderHandle = useRef(null)
 
@@ -65,7 +65,7 @@ const StoreData = (props) => {
 
     return (
         <div className="StoreData">
-            <UploadData id={props.id}/>
+            <UploadData id={id}/>
             <button onClick = {onClickHandler}>Grant Permissions</button>
         </div>
     )

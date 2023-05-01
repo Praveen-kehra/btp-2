@@ -6,13 +6,14 @@ export default function UploadData(props) {
     console.log(props);
     const [file, setFile] = useState(null);
     let reader;
-    const handleFileLoad = (event) => {
+    const handleFileLoad = async (event) => {
         const text = reader.result;
         console.log(text);
-        axios.post("/sendToServer", {
+        const res = await axios.post("/sendToServer", {
             textData: text,
             id: props.id
         })
+        console.log(res)
     }
     const uploadHandler = (e) => {
         e.preventDefault();
