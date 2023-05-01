@@ -40,7 +40,8 @@ const StoreData = () => {
             console.log(shard)
 
             if(folderHandle != null) {
-                const newFileHandle = await folderHandle.getFileHandle(shard.id, { create : true })
+                console.log(folderHandle.current)
+                const newFileHandle = await folderHandle.current.getFileHandle(shard.id, { create : true })
 
                 const writable = await newFileHandle.createWritable()
 

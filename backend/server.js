@@ -96,7 +96,6 @@ function distributeData(userId, dataStore) {
 }
 
 app.post("/sendToServer", (req, res) => {
-    console.log(req)
     //data is in string format req.body.textData
     let dataStore = []
     let data = req.body.textData
@@ -106,83 +105,38 @@ app.post("/sendToServer", (req, res) => {
         user.push(id);
     }
 
-    let chunkSize = Math.floor(data / numChunks)
+    let chunkSize = parseInt(Math.floor(data.length / numChunks))
+
+    console.log(chunkSize)
 
     let i = 0, counter = 0
 
     while(true) {
         i = counter * chunkSize
 
-        if(i >= data.length) break
+        console.log(i)
+
+        if(i >= data.length) break;
 
         let currObject = {
             position : counter,
-            store : data.splice(counter * chunkSize, Math.min(chunkSize, data.length - i))
+            store : data.slice(i, i + Math.min(chunkSize, data.length - i))
         }
+
+        console.log(currObject.store)
 
         dataStore.push(currObject)
         
         counter++
     }
 
-    distributeData(id, dataStore)
+    // distributeData(id, dataStore)
 
-});
-
-// app.post("/nodeOnline", (req, res) => {
-//     const ethAddress = req.body.ethereumAddress;
-
-//     //this node is now live
-//     addNode(queue, ethAddress);
-
-//     // res.json({message : 'Eth Address Received.'});
-// })
-
-// app.post("/nodeOffline", (req, res) => {
-//     const ethAddress = req.body.ethereumAddress;
-
-//     //this node is now offline
-//     removeNode(queue, ethAddress);
-// })
+})
 
 app.get("*", (req, res) => {
     res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build', 'index.html'))
 })
-
-// app.listen(PORT, ()=> {
-//     console.log(`Server is running on ${PORT}`)
-// })
-
-// const ws = new WebSocketServer({ port : 886 })
-
-// ws.on('connection', (socket) => {
-//     console.log('Client Connected')
-
-//     setTimeout(() => {
-//         console.log('sent')
-//         socket.send(JSON.stringify({
-//             id : '83838',
-//             position: 73,
-//             store: 'lksjdfsdklf'
-//         }))
-//     }, 10000)
-
-//     socket.on('message', (message) => {
-//         const obj = JSON.parse(message)
-
-//         if(obj.type === 'id') {
-//             clients.set(obj.content, socket)
-//             addNode(queue, obj.content)
-//         } else if(obj.type === 'close') {
-//             clients.delete(obj.content)
-//             removeNode(queue, obj.content)
-//         }
-//     })
-
-//     socket.on('close', () => {
-//         console.log('Disconnected')
-//     })
-// })
 
 io.on('connection', (socket) => {
     console.log('A user connected')
@@ -216,7 +170,3 @@ io.on('connection', (socket) => {
         console.log('Client has Disconnected')
     })
 })
-
-// server.listen(PORT, () => {
-//     console.log('listening on PORT ' + PORT)
-// })
