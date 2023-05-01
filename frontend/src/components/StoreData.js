@@ -65,6 +65,7 @@ const StoreData = () => {
         // socketRef.current = io.connect(`http://127.0.0.1:8081`)
         console.log("second")
         console.log(socketRef.current)
+        
 
         socketRef.current.on('connect', () => {
             console.log('Connected to the Server')
