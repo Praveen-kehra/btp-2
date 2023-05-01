@@ -1,0 +1,9 @@
+.upload-data-container{
+    margin: 10px;
+}
+.file-label{
+    cursor: pointer;
+    background-color: rgb(197, 43, 197);
+    color: white;
+    padding: 4px;
+}
