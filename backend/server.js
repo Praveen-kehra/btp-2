@@ -6,15 +6,22 @@ import http from 'http'
 import { Server } from 'socket.io'
 
 import express from 'express'
-const app = express()
-const server = http.Server(app)
-const io = new Server(server)
 
 import d from 'dotenv'
 
 d.config()
 
 const PORT = process.env.PORT || 3000
+
+console.log(PORT)
+
+const app = express()
+const server = http.Server(app).listen(PORT, () => {
+    console.log('Listening on PORT ' + PORT)
+})
+
+const io = new Server(server)
+
 const numChunks = 2
 const redundantFactor = 2
 
@@ -206,6 +213,6 @@ io.on('connection', (socket) => {
     })
 })
 
-server.listen(PORT, () => {
-    console.log('listening on PORT' + PORT)
-})
+// server.listen(PORT, () => {
+//     console.log('listening on PORT ' + PORT)
+// })

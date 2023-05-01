@@ -61,8 +61,10 @@ const StoreData = () => {
         // })
         
         console.log("first")
-        socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
+        // socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
         // socketRef.current = io.connect(`http://127.0.0.1:8081`)
+        socketRef.current = io.connect()
+        
         console.log("second")
         console.log(socketRef.current)
         
