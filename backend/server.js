@@ -23,7 +23,7 @@ const server = http.Server(app).listen(PORT, () => {
 
 const io = new Server(server)
 
-const numChunks = 2
+const numChunks = 4
 const redundantFactor = 2
 
 app.use(bodyParser.json())
@@ -107,14 +107,14 @@ app.post("/sendToServer", (req, res) => {
 
     let chunkSize = parseInt(Math.floor(data.length / numChunks))
 
-    console.log(chunkSize)
+    // console.log(chunkSize)
 
     let i = 0, counter = 0
 
     while(true) {
         i = counter * chunkSize
 
-        console.log(i)
+        // console.log(i)
 
         if(i >= data.length) break;
 
