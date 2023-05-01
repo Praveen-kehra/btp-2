@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid'
 import { fileURLToPath } from 'url'
 import http from 'http'
 import { Server } from 'socket.io'
+import bodyParser from 'body-parser'
 
 import express from 'express'
 
@@ -25,6 +26,8 @@ const io = new Server(server)
 const numChunks = 2
 const redundantFactor = 2
 
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended : false }))
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build')))
 
 var clients = new Map()
