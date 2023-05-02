@@ -23,8 +23,8 @@ const server = http.Server(app).listen(PORT, () => {
 
 const io = new Server(server)
 
-const numChunks = 2
-const redundantFactor = 2
+const numChunks = 4
+const redundantFactor = 3
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : false }))
@@ -125,11 +125,6 @@ function distributeData(userId, dataStore, fileName) {
             counter++
         }
     }
-
-    // console.log(user)
-    // console.log(fileNames)
-    // console.log(shards)
-    // console.log(shardLocate)
 
     return true
 }
@@ -249,7 +244,7 @@ app.post('/retrieveFile', (req, res) => {
 })
 
 app.post("/userFiles", (req, res) => {
-    const userId = req.body.id
+    const userId = req.body.userId
     return res.json(
         {files: fileNames.get(userId)}
     );
@@ -261,13 +256,6 @@ app.get("*", (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('A user connected')
-
-    // setTimeout(() => {
-    //     console.log('sent')
-    //     socket.emit('serverRequestData', {
-    //         id : '7ad1e776-8536-43d0-8fa1-'
-    //     })
-    // }, 10000)
 
     socket.on('id', (data) => {
         const obj = JSON.parse(data)

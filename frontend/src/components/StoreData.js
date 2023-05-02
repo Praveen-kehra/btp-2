@@ -19,7 +19,7 @@ const StoreData = () => {
     const retrieveFile = async () => {
         const res = await axios.post('/retrieveFile', {
             id : id,
-            name : 'New Text Document.txt'
+            name : 'test_file_1.txt'
         })
 
         console.log(res)
