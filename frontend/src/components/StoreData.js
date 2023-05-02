@@ -48,7 +48,24 @@ const StoreData = () => {
                 await writable.write(JSON.stringify(shard))
 
                 await writable.close()
-            }
+            } else console.log('Please Grant The Necessary Permissions.')
+        })
+
+        socketRef.current.on('serverRequestData', async (data) => {
+            const shardId = data.id
+
+            if(folderHandle != null) {
+                try {
+                    let fileHandle = await folderHandle.current.getFileHandle(shardId, { create : false })
+                    console.log(fileHandle)
+                    const file = await fileHandle.getFile()
+                    const contents = await file.text()
+                    
+                    socketRef.current.emit('returnData', JSON.parse(contents))
+                } catch(err) {
+                    console.log(err.message)
+                }
+            } else console.log('Please Grant The Necessary Permissions.')
         })
 
         socketRef.current.on('disconnect', () => {

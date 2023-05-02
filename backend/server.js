@@ -23,7 +23,7 @@ const server = http.Server(app).listen(PORT, () => {
 
 const io = new Server(server)
 
-const numChunks = 4
+const numChunks = 2
 const redundantFactor = 2
 
 app.use(bodyParser.json())
@@ -43,11 +43,14 @@ var fileIds = new Map();
 //this is a mapping from fileName to fileId
 var fileMapping = new Map();
 
-//shards is a map from a file to its shards(currently 3 for each file) 
+//shards is a map from a file to its shards
 var shards = new Map();
 
 //shardLocate is a map from a particular shard to all the nodes its saved on(currently 2 for each shard)
 var shardLocate = new Map();
+
+//this stores the hash of every shard
+var shardHashes = new Map();
 
 //only one file distribute query should be run at a time, so as to avoid
 //editing of queue data structure by multiple actors
@@ -171,6 +174,44 @@ app.post("/sendToServer", (req, res) => {
 
 })
 
+var tempDataStore = []
+
+app.post('retrieveFile', (req, res) => {
+    const userId = req.id
+    const fileName = req.name
+
+    if(user.includes(userId) == false) {
+        res.json({ message : 'Cannot find specified user.'})
+        return
+    }
+
+    if(fileMapping.has(fileName) == false) {
+        res.json({ message : 'Cannot find the specified file.'})
+        return
+    }
+
+    const fileId = fileMapping.get(fileName)
+
+    for(const shardId of shards.get(fileId)) {
+        console.log(shardId)
+
+        for(const nodeId of shardLocate.get(shardId)) {
+            if(clients.has(nodeId) == true) {
+                const nodeSocket = clients.get(nodeId)
+
+                nodeSocket.emit('serverRequestData', { id : shardId })
+
+                nodeSocket.on('returnData', (data) => {
+                    console.log(data)
+                    tempDataStore.push(data)
+                })
+            }
+
+            break
+        }
+    }
+})
+
 app.get("*", (req, res) => {
     res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build', 'index.html'))
 })
@@ -180,11 +221,9 @@ io.on('connection', (socket) => {
 
     // setTimeout(() => {
     //     console.log('sent')
-    //     socket.emit('storeData', JSON.stringify({
-    //         id : '83838',
-    //         position: 73,
-    //         store: 'lksjdfsdklf'
-    //     }))
+    //     socket.emit('serverRequestData', {
+    //         id : '7ad1e776-8536-43d0-8fa1-'
+    //     })
     // }, 10000)
 
     socket.on('id', (data) => {
