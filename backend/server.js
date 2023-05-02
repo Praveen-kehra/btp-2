@@ -52,6 +52,9 @@ var shardLocate = new Map();
 //this stores the hash of every shard
 var shardHashes = new Map();
 
+//this stores the size of the data Store generated for every file
+var dataStoreSizes = new Map();
+
 //only one file distribute query should be run at a time, so as to avoid
 //editing of queue data structure by multiple actors
 //client Map should remain same while function is running
@@ -72,6 +75,8 @@ function distributeData(userId, dataStore, fileName) {
     if(fileNames.get(userId).includes(fileName) == true) {
         return false
     }
+
+    dataStoreSizes.set(fileId, dataStore.length)
 
     fileIds.set(userId, [...fileIds.get(userId), fileId])
 
@@ -179,6 +184,9 @@ app.post("/sendToServer", (req, res) => {
 var tempDataStore = []
 
 app.post('/retrieveFile', (req, res) => {
+
+    tempDataStore = []
+
     const userId = req.body.id
     const fileName = req.body.name
 
@@ -192,6 +200,8 @@ app.post('/retrieveFile', (req, res) => {
         return
     }
 
+    //fileMappin cannot be just a map
+    //need to have different for every user
     const fileId = fileMapping.get(fileName)
 
     for(const shardId of shards.get(fileId)) {
@@ -201,13 +211,13 @@ app.post('/retrieveFile', (req, res) => {
             console.log("Ran")
             if(clients.has(nodeId) == true) {
                 const nodeSocket = clients.get(nodeId)
+                const callback = uuid().slice(0, 50)
 
-                nodeSocket.on('returnData', (data) => {
-                    console.log(data)
+                nodeSocket.on(callback, (data) => {
                     tempDataStore.push(data)
                 })
 
-                nodeSocket.emit('serverRequestData', { id : shardId })
+                nodeSocket.emit('serverRequestData', { id : shardId, callback : callback })
             }
 
             break
