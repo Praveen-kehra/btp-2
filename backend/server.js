@@ -137,6 +137,8 @@ app.post("/sendToServer", (req, res) => {
         user.push(id);
     }
 
+    console.log(user)
+
     let chunkSize = parseInt(Math.floor(data.length / numChunks))
 
     // console.log(chunkSize)
@@ -176,9 +178,9 @@ app.post("/sendToServer", (req, res) => {
 
 var tempDataStore = []
 
-app.post('retrieveFile', (req, res) => {
-    const userId = req.id
-    const fileName = req.name
+app.post('/retrieveFile', (req, res) => {
+    const userId = req.body.id
+    const fileName = req.body.name
 
     if(user.includes(userId) == false) {
         res.json({ message : 'Cannot find specified user.'})
@@ -196,15 +198,16 @@ app.post('retrieveFile', (req, res) => {
         console.log(shardId)
 
         for(const nodeId of shardLocate.get(shardId)) {
+            console.log("Ran")
             if(clients.has(nodeId) == true) {
                 const nodeSocket = clients.get(nodeId)
-
-                nodeSocket.emit('serverRequestData', { id : shardId })
 
                 nodeSocket.on('returnData', (data) => {
                     console.log(data)
                     tempDataStore.push(data)
                 })
+
+                nodeSocket.emit('serverRequestData', { id : shardId })
             }
 
             break

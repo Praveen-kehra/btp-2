@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { v4 as uuid } from 'uuid'
 import io from 'socket.io-client'
 import UploadData from './UploadData/UploadData';
+import axios from 'axios'
 
 const id = uuid().slice(0, 16);
 
@@ -12,6 +13,15 @@ const StoreData = () => {
     const onClickHandler = async () => {
         folderHandle.current = await window.showDirectoryPicker({ mode : 'readwrite' })
         console.log(folderHandle)
+    }
+
+    const retrieveFile = async () => {
+        const res = await axios.post('/retrieveFile', {
+            id : id,
+            name : 'test_file_1.txt'
+        })
+
+        console.log(res)
     }
 
     useEffect(() => {
@@ -85,6 +95,7 @@ const StoreData = () => {
         <div className="StoreData">
             <UploadData id={id}/>
             <button onClick = {onClickHandler}>Grant Permissions</button>
+            <button onClick = {retrieveFile}>Retrieve File</button>
         </div>
     )
 }
