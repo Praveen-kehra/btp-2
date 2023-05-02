@@ -1,7 +1,8 @@
 import React from 'react'
 
-export default function FileLink() {
+export default function FileLink(props) {
+
   return (
-    <div>FileLink</div>
+    <div>{props.fileName}</div>
   )
 }

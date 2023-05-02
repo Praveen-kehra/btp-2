@@ -248,6 +248,13 @@ app.post('/retrieveFile', (req, res) => {
     }
 })
 
+app.post("/userFiles", (req, res) => {
+    const userId = req.body.id
+    return res.json(
+        {files: fileNames.get(userId)}
+    );
+})
+
 app.get("*", (req, res) => {
     res.sendFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build', 'index.html'))
 })
