@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import io from 'socket.io-client'
 import UploadData from './UploadData/UploadData';
 import axios from 'axios'
+import UserFiles from './userfiles/UserFiles';
 
 const id = uuid().slice(0, 16);
 
@@ -18,7 +19,7 @@ const StoreData = () => {
     const retrieveFile = async () => {
         const res = await axios.post('/retrieveFile', {
             id : id,
-            name : 'test_file_1.txt'
+            name : 'New Text Document.txt'
         })
 
         console.log(res)
@@ -93,9 +94,10 @@ const StoreData = () => {
 
     return (
         <div className="StoreData">
-            <UploadData id={id}/>
+            <UploadData id={id} />
             <button onClick = {onClickHandler}>Grant Permissions</button>
             <button onClick = {retrieveFile}>Retrieve File</button>
+            <UserFiles userAddress={id} />
         </div>
     )
 }
