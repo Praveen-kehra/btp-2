@@ -40,7 +40,7 @@ var fileNames = new Map();
 //filesIds is a map from users to an array of their files(file Ids)
 var fileIds = new Map();
 
-//this is a mapping from fileName to fileId
+//this is a mapping from (userId => (fileName => fileId))
 var fileMapping = new Map();
 
 //shards is a map from a file to its shards
@@ -76,13 +76,17 @@ function distributeData(userId, dataStore, fileName) {
         return false
     }
 
-    dataStoreSizes.set(fileId, dataStore.length)
+    if(fileMapping.has(userId) == false) {
+        fileMapping.set(userId, new Map())
+    }
 
     fileIds.set(userId, [...fileIds.get(userId), fileId])
 
     fileNames.set(userId, [...fileNames.get(userId), fileName])
 
-    fileMapping.set(fileName, fileId)
+    fileMapping.get(userId).set(fileName, fileId)
+
+    dataStoreSizes.set(fileId, dataStore.length)
 
     while(dataStore.length > 0) {
         const shardId = uuid().slice(0, 24)
@@ -195,14 +199,13 @@ app.post('/retrieveFile', (req, res) => {
         return
     }
 
-    if(fileMapping.has(fileName) == false) {
+    if(fileMapping.get(userId).has(fileName) == false) {
         res.json({ message : 'Cannot find the specified file.'})
         return
     }
 
-    //fileMappin cannot be just a map
-    //need to have different for every user
-    const fileId = fileMapping.get(fileName)
+    //fileMapping tells us relationship between fileNames and fileIds for every userId
+    const fileId = fileMapping.get(userId).get(fileName)
 
     for(const shardId of shards.get(fileId)) {
         console.log(shardId)
@@ -215,6 +218,26 @@ app.post('/retrieveFile', (req, res) => {
 
                 nodeSocket.on(callback, (data) => {
                     tempDataStore.push(data)
+
+                    if(tempDataStore.length == dataStoreSizes.get(fileId)) {
+                        //sort the dataStore first
+                        tempDataStore.sort((first, second) => {
+                            let a = parseInt(first.position)
+                            let b = parseInt(second.position)
+
+                            if(a < b) return -1;
+                            else if(a == b) return 0;
+                            else return 1;
+                        })
+
+                        let data = ''
+
+                        for(const obj of tempDataStore) {
+                            data += obj.store
+                        }
+
+                        res.json({ message : data })
+                    }
                 })
 
                 nodeSocket.emit('serverRequestData', { id : shardId, callback : callback })
