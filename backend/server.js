@@ -40,6 +40,9 @@ var fileNames = new Map();
 //filesIds is a map from users to an array of their files(file Ids)
 var fileIds = new Map();
 
+//this is a mapping from fileName to fileId
+var fileMapping = new Map();
+
 //shards is a map from a file to its shards(currently 3 for each file) 
 var shards = new Map();
 
@@ -62,6 +65,7 @@ function distributeData(userId, dataStore, fileName) {
         fileNames.set(userId, [])
     }
 
+    //if the fileName has already been uploaded by the user, do not process/distribute that file further
     if(fileNames.get(userId).includes(fileName) == true) {
         return false
     }
@@ -69,6 +73,8 @@ function distributeData(userId, dataStore, fileName) {
     fileIds.set(userId, [...fileIds.get(userId), fileId])
 
     fileNames.set(userId, [...fileNames.get(userId), fileName])
+
+    fileMapping.set(fileName, fileId)
 
     while(dataStore.length > 0) {
         const shardId = uuid().slice(0, 24)
