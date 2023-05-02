@@ -8,10 +8,11 @@ export default function UploadData(props) {
     let reader;
     const handleFileLoad = async (event) => {
         const text = reader.result;
-        console.log(text);
+        console.log(file.name)
         const res = await axios.post("/sendToServer", {
             textData: text,
-            id: props.id
+            id: props.id,
+            name: file.name
         })
         console.log(res)
     }

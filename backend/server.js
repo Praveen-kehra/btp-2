@@ -34,8 +34,11 @@ var clients = new Map()
 
 var user = []
 
-//files is a map from users to an array of their files
-var files = new Map();
+//filesName is a map from users to an array of their files(file Names)
+var fileNames = new Map();
+
+//filesIds is a map from users to an array of their files(file Ids)
+var fileIds = new Map();
 
 //shards is a map from a file to its shards(currently 3 for each file) 
 var shards = new Map();
@@ -46,15 +49,26 @@ var shardLocate = new Map();
 //only one file distribute query should be run at a time, so as to avoid
 //editing of queue data structure by multiple actors
 //client Map should remain same while function is running
-function distributeData(userId, dataStore) {
+function distributeData(userId, dataStore, fileName) {
     //need to generate ids for file and its shards
-    const fileId = uuid.slice(0, 20)
+    console.log(fileNames)
+    const fileId = uuid().slice(0, 20)
 
-    if(files.has(userId) == false) {
-        files.set(userId, [])
+    if(fileIds.has(userId) == false) {
+        fileIds.set(userId, [])
     }
 
-    files.set(userId, [...files.get(userId), fileId])
+    if(fileNames.has(userId) == false) {
+        fileNames.set(userId, [])
+    }
+
+    if(fileNames.get(userId).includes(fileName) == true) {
+        return false
+    }
+
+    fileIds.set(userId, [...fileIds.get(userId), fileId])
+
+    fileNames.set(userId, [...fileNames.get(userId), fileName])
 
     while(dataStore.length > 0) {
         const shardId = uuid().slice(0, 24)
@@ -93,13 +107,22 @@ function distributeData(userId, dataStore) {
             counter++
         }
     }
+
+    // console.log(user)
+    // console.log(files)
+    // console.log(shards)
+    // console.log(shardLocate)
+
+    return true
 }
 
 app.post("/sendToServer", (req, res) => {
     //data is in string format req.body.textData
     let dataStore = []
     let data = req.body.textData
+    //id of sender
     const id = req.body.id
+    const name = req.body.name
 
     if(user.includes(id) == false) {
         user.push(id);
@@ -130,9 +153,15 @@ app.post("/sendToServer", (req, res) => {
         counter++
     }
 
-    res.json({message : 'Received'})
+    const returnVal = distributeData(id, dataStore, name)
 
-    // distributeData(id, dataStore)
+    console.log(returnVal)
+
+    if(returnVal == true) {
+        res.json({ message : 'File Stored successfully.'})
+    } else {
+        res.json({ message : 'Cannot store file with the same name twice.'})
+    }
 
 })
 
@@ -143,14 +172,14 @@ app.get("*", (req, res) => {
 io.on('connection', (socket) => {
     console.log('A user connected')
 
-    setTimeout(() => {
-        console.log('sent')
-        socket.emit('storeData', JSON.stringify({
-            id : '83838',
-            position: 73,
-            store: 'lksjdfsdklf'
-        }))
-    }, 10000)
+    // setTimeout(() => {
+    //     console.log('sent')
+    //     socket.emit('storeData', JSON.stringify({
+    //         id : '83838',
+    //         position: 73,
+    //         store: 'lksjdfsdklf'
+    //     }))
+    // }, 10000)
 
     socket.on('id', (data) => {
         const obj = JSON.parse(data)
