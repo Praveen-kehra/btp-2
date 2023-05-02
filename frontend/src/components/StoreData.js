@@ -63,6 +63,7 @@ const StoreData = () => {
 
         socketRef.current.on('serverRequestData', async (data) => {
             const shardId = data.id
+            const callback = data.callback
 
             if(folderHandle != null) {
                 try {
@@ -71,7 +72,7 @@ const StoreData = () => {
                     const file = await fileHandle.getFile()
                     const contents = await file.text()
                     
-                    socketRef.current.emit('returnData', JSON.parse(contents))
+                    socketRef.current.emit(callback, JSON.parse(contents))
                 } catch(err) {
                     console.log(err.message)
                 }
