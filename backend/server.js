@@ -109,7 +109,7 @@ function distributeData(userId, dataStore, fileName) {
     }
 
     // console.log(user)
-    // console.log(files)
+    // console.log(fileNames)
     // console.log(shards)
     // console.log(shardLocate)
 
