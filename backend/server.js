@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url'
 import http from 'http'
 import { Server } from 'socket.io'
 import bodyParser from 'body-parser'
+import sha256 from 'crypto-js/sha256.js'
+import CryptoJS from 'crypto-js'
 
 import express from 'express'
 
@@ -14,7 +16,7 @@ d.config()
 
 const PORT = process.env.PORT || 3000
 
-console.log(PORT)
+// console.log(PORT)
 
 const app = express()
 const server = http.Server(app).listen(PORT, () => {
@@ -46,7 +48,7 @@ var fileMapping = new Map();
 //shards is a map from a file to its shards
 var shards = new Map();
 
-//shardLocate is a map from a particular shard to all the nodes its saved on(currently 2 for each shard)
+//shardLocate is a map from a particular shard to all the nodes its saved on(currently redundantFactor for each shard)
 var shardLocate = new Map();
 
 //this stores the hash of every shard
@@ -60,7 +62,7 @@ var dataStoreSizes = new Map();
 //client Map should remain same while function is running
 function distributeData(userId, dataStore, fileName) {
     //need to generate ids for file and its shards
-    console.log(fileNames)
+    // console.log(fileNames)
     const fileId = uuid().slice(0, 20)
 
     if(fileIds.has(userId) == false) {
@@ -103,6 +105,12 @@ function distributeData(userId, dataStore, fileName) {
 
         shards.set(fileId, [...shards.get(fileId), shardId])
 
+        let hash = sha256(JSON.stringify(shard))
+
+        shardHashes.set(shardId, hash.toString(CryptoJS.enc.Hex))
+
+        console.log(shardHashes.get(shardId))
+
         let counter = 0
 
         while(queue.length > 0 && counter < redundantFactor) {
@@ -141,7 +149,7 @@ app.post("/sendToServer", (req, res) => {
         user.push(id);
     }
 
-    console.log(user)
+    // console.log(user)
 
     let chunkSize = parseInt(Math.floor(data.length / numChunks))
 
@@ -161,7 +169,7 @@ app.post("/sendToServer", (req, res) => {
             store : data.slice(i, i + Math.min(chunkSize, data.length - i))
         }
 
-        console.log(currObject.store)
+        // console.log(currObject.store)
 
         dataStore.push(currObject)
         
@@ -170,7 +178,7 @@ app.post("/sendToServer", (req, res) => {
 
     const returnVal = distributeData(id, dataStore, name)
 
-    console.log(returnVal)
+    // console.log(returnVal)
 
     if(returnVal == true) {
         res.json({ message : 'File Stored successfully.'})
@@ -203,42 +211,55 @@ app.post('/retrieveFile', (req, res) => {
     const fileId = fileMapping.get(userId).get(fileName)
 
     for(const shardId of shards.get(fileId)) {
-        console.log(shardId)
+        // console.log(shardId)
 
         for(const nodeId of shardLocate.get(shardId)) {
-            console.log("Ran")
+            // console.log("Ran")
             if(clients.has(nodeId) == true) {
                 const nodeSocket = clients.get(nodeId)
                 const callback = uuid().slice(0, 50)
 
                 nodeSocket.on(callback, (data) => {
-                    tempDataStore.push(data)
+                    const hash = sha256(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
 
-                    if(tempDataStore.length == dataStoreSizes.get(fileId)) {
-                        //sort the dataStore first
-                        tempDataStore.sort((first, second) => {
-                            let a = parseInt(first.position)
-                            let b = parseInt(second.position)
+                    let exists = false
 
-                            if(a < b) return -1;
-                            else if(a == b) return 0;
-                            else return 1;
-                        })
-
-                        let data = ''
-
-                        for(const obj of tempDataStore) {
-                            data += obj.store
+                    for(let value of tempDataStore) {
+                        if(value.store === data.store) {
+                            exists = true
+                            break
                         }
+                    }
 
-                        res.json({ message : data })
+                    if(hash == shardHashes.get(shardId) && exists == false) {
+                        tempDataStore.push(data)
+
+                        if(tempDataStore.length == dataStoreSizes.get(fileId)) {
+                            //sort the dataStore first
+                            tempDataStore.sort((first, second) => {
+                                let a = parseInt(first.position)
+                                let b = parseInt(second.position)
+
+                                if(a < b) return -1;
+                                else if(a == b) return 0;
+                                else return 1;
+                            })
+
+                            let data = ''
+
+                            for(const obj of tempDataStore) {
+                                data += obj.store
+                            }
+
+                            res.json({ message : data })
+                        }
+                    } else if(hash != shardHashes.get(shardId)) {
+                        //code for telling nodeSocket to delete the shard as it is corrupt
                     }
                 })
 
                 nodeSocket.emit('serverRequestData', { id : shardId, callback : callback })
             }
-
-            break
         }
     }
 })
