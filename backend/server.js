@@ -220,6 +220,7 @@ app.post('/retrieveFile', (req, res) => {
                 const callback = uuid().slice(0, 50)
 
                 nodeSocket.on(callback, (data) => {
+                    //checking hashes of shards to maintain integrity of the file
                     const hash = sha256(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
 
                     let exists = false
@@ -235,7 +236,7 @@ app.post('/retrieveFile', (req, res) => {
                         tempDataStore.push(data)
 
                         if(tempDataStore.length == dataStoreSizes.get(fileId)) {
-                            //sort the dataStore first
+                            //sort the tempDataStore first
                             tempDataStore.sort((first, second) => {
                                 let a = parseInt(first.position)
                                 let b = parseInt(second.position)
