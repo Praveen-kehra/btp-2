@@ -7,6 +7,7 @@ import { Server } from 'socket.io'
 import bodyParser from 'body-parser'
 import sha256 from 'crypto-js/sha256.js'
 import CryptoJS from 'crypto-js'
+import sizeof from 'object-sizeof'
 
 import express from 'express'
 
@@ -57,6 +58,12 @@ var shardHashes = new Map();
 //this stores the size of the data Store generated for every file
 var dataStoreSizes = new Map();
 
+//this stores how much data we can store on each user's pc
+var maxLimit = new Map();
+
+//this stores how much data we have stored on some user's pc
+var current = new Map();
+
 //only one file distribute query should be run at a time, so as to avoid
 //editing of queue data structure by multiple actors
 //client Map should remain same while function is running
@@ -98,6 +105,11 @@ function distributeData(userId, dataStore, fileName) {
         dataStore.pop()
 
         shard.id = shardId
+
+        //size in bytes
+        let shardSize = sizeof(shard)
+
+        console.log(shardSize)
 
         if(shards.has(fileId) == false) {
             shards.set(fileId, [])
@@ -147,6 +159,13 @@ app.post("/sendToServer", (req, res) => {
 
     if(user.includes(id) == false) {
         user.push(id);
+        
+        //need to set some default value for maxLimit
+        //setting it as 5MB
+
+        maxLimit.set(id, parseInt(5 * 1024 * 1024))
+
+        current.set(id, parseInt(0))
     }
 
     // console.log(user)
